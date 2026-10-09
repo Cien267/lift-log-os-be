@@ -1,6 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, QueryFailedError, Repository } from 'typeorm';
+import { DataSource, IsNull, QueryFailedError, Repository } from 'typeorm';
 import {
   LOCK_DURATION_MS,
   MAX_FAILED_LOGINS,
@@ -35,7 +35,7 @@ export class UsersService {
         error instanceof QueryFailedError &&
         (error.driverError as { code?: string })?.code === '23505'
       ) {
-        throw new ConflictException('Email already exists');
+        throw new ConflictException('Email đã được sử dụng');
       }
       throw error;
     }
@@ -43,6 +43,10 @@ export class UsersService {
 
   findById(id: string): Promise<User | null> {
     return this.repo.findOneBy({ id });
+  }
+
+  findByEmail(email: string): Promise<User | null> {
+    return this.repo.findOneBy({ email });
   }
 
   /** Lấy cả cột password (mặc định bị ẩn bởi select: false). */
@@ -85,6 +89,27 @@ export class UsersService {
     await this.repo.update(userId, {
       password: passwordHash,
       passwordChangedAt: new Date(),
+    });
+  }
+
+  async markEmailVerified(userId: string): Promise<void> {
+    await this.repo.update(
+      { id: userId, emailVerifiedAt: IsNull() },
+      { emailVerifiedAt: new Date() },
+    );
+  }
+
+  /**
+   * Đặt lại mật khẩu qua email: ghi mật khẩu mới, gỡ khóa tài khoản, và coi email là đã xác minh
+   * (người nhận được liên kết đặt lại thì chắc chắn kiểm soát hộp thư đó).
+   */
+  async resetPassword(userId: string, passwordHash: string): Promise<void> {
+    await this.repo.update(userId, {
+      password: passwordHash,
+      passwordChangedAt: new Date(),
+      failedLoginAttempts: 0,
+      lockedUntil: null,
+      emailVerifiedAt: () => 'COALESCE("email_verified_at", now())',
     });
   }
 }

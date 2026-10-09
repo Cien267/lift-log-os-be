@@ -15,6 +15,9 @@ export class User extends AuditEntity {
   @Column({ select: false })
   password: string;
 
+  @Column({ type: 'timestamptz', nullable: true })
+  emailVerifiedAt: Date | null;
+
   @Column({ type: 'int', default: 0 })
   failedLoginAttempts: number;
 

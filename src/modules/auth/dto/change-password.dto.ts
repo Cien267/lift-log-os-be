@@ -1,4 +1,5 @@
-import { IsString, Matches, MaxLength, MinLength } from 'class-validator';
+import { IsString, MaxLength, MinLength } from 'class-validator';
+import { StrongPassword } from './password.rules';
 
 export class ChangePasswordDto {
   @IsString()
@@ -6,11 +7,6 @@ export class ChangePasswordDto {
   @MaxLength(128)
   currentPassword: string;
 
-  @IsString()
-  @MinLength(10, { message: 'Mật khẩu phải có ít nhất 10 ký tự' })
-  @MaxLength(128)
-  @Matches(/(?=.*[A-Za-z])(?=.*\d)/, {
-    message: 'Mật khẩu phải có cả chữ và số',
-  })
+  @StrongPassword()
   newPassword: string;
 }
