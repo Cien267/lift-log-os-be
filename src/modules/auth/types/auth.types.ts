@@ -28,5 +28,6 @@ export type RevokeReason =
   | 'logout'
   | 'logout_all'
   | 'password_changed'
+  | 'role_changed'
   | 'reuse_detected'
   | 'revoked_by_user';

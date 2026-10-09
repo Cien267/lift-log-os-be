@@ -5,10 +5,12 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SnakeNamingStrategy } from './common/snake-naming.strategy';
 import { validateEnv } from './config/env.validation';
+import { AdminModule } from './modules/admin/admin.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
-import { UsersModule } from './modules/users/users.module';
+import { RolesGuard } from './modules/auth/guards/roles.guard';
 import { SettingsModule } from './modules/settings/settings.module';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
@@ -35,11 +37,13 @@ import { SettingsModule } from './modules/settings/settings.module';
     UsersModule,
     AuthModule,
     SettingsModule,
+    AdminModule,
   ],
   providers: [
-    // Thứ tự quan trọng: giới hạn tần suất chạy trước, rồi mới kiểm tra JWT.
+    // Thứ tự quan trọng: giới hạn tần suất → xác thực JWT → kiểm tra vai trò.
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
   ],
 })
 export class AppModule {}

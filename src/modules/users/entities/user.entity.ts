@@ -1,7 +1,9 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
 import { AuditEntity } from '../../../common/entities/audit.entity';
+import { UserRole } from '../../../common/enums/forge.enums';
 
 @Entity('users')
+@Index('idx_users_admins', ['role'], { where: `"role" = 'admin'` })
 export class User extends AuditEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -14,6 +16,9 @@ export class User extends AuditEntity {
 
   @Column({ select: false })
   password: string;
+
+  @Column({ type: 'enum', enum: UserRole, default: UserRole.User })
+  role: UserRole;
 
   @Column({ type: 'timestamptz', nullable: true })
   emailVerifiedAt: Date | null;

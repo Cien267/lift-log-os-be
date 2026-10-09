@@ -73,3 +73,8 @@ export enum NotificationType {
   WhatsNew = 'whats_new',
   WeeklySummary = 'weekly_summary',
 }
+
+export enum UserRole {
+  User = 'user',
+  Admin = 'admin',
+}
