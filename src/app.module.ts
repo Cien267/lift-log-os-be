@@ -11,6 +11,7 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from './modules/auth/guards/roles.guard';
 import { SettingsModule } from './modules/settings/settings.module';
 import { UsersModule } from './modules/users/users.module';
+import { ExercisesModule } from './modules/exercises/exercises.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { UsersModule } from './modules/users/users.module';
     AuthModule,
     SettingsModule,
     AdminModule,
+    ExercisesModule,
   ],
   providers: [
     // Thứ tự quan trọng: giới hạn tần suất → xác thực JWT → kiểm tra vai trò.
