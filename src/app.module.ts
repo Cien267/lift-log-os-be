@@ -9,9 +9,11 @@ import { AdminModule } from './modules/admin/admin.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from './modules/auth/guards/roles.guard';
-import { SettingsModule } from './modules/settings/settings.module';
-import { UsersModule } from './modules/users/users.module';
 import { ExercisesModule } from './modules/exercises/exercises.module';
+import { SettingsModule } from './modules/settings/settings.module';
+import { TemplatesModule } from './modules/templates/templates.module';
+import { UsersModule } from './modules/users/users.module';
+import { WorkoutsModule } from './modules/workouts/workouts.module';
 
 @Module({
   imports: [
@@ -40,6 +42,8 @@ import { ExercisesModule } from './modules/exercises/exercises.module';
     SettingsModule,
     AdminModule,
     ExercisesModule,
+    TemplatesModule,
+    WorkoutsModule,
   ],
   providers: [
     // Thứ tự quan trọng: giới hạn tần suất → xác thực JWT → kiểm tra vai trò.

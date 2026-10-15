@@ -7,6 +7,7 @@ import {
 } from '../auth/constants/auth.constants';
 import { UserSettings } from '../settings/entities/user-settings.entity';
 import { User } from './entities/user.entity';
+import { isUniqueViolation } from '../../common/database/unique-violation';
 
 interface CreateUserInput {
   email: string;
@@ -31,10 +32,7 @@ export class UsersService {
       });
     } catch (error) {
       // Dựa vào unique constraint của DB thay vì "kiểm tra rồi mới tạo" (có race condition).
-      if (
-        error instanceof QueryFailedError &&
-        (error.driverError as { code?: string })?.code === '23505'
-      ) {
+      if (isUniqueViolation(error)) {
         throw new ConflictException('Email đã được sử dụng');
       }
       throw error;

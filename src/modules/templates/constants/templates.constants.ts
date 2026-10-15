@@ -1,0 +1,2 @@
+export const MAX_TEMPLATES_PER_USER = 100;
+export const MAX_EXERCISES_PER_TEMPLATE = 50;

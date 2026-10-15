@@ -12,17 +12,10 @@ import {
   MinLength,
 } from 'class-validator';
 import { MuscleGroup } from '../../../common/enums/forge.enums';
-
-const trimString = ({ value }: { value: unknown }) =>
-  typeof value === 'string' ? value.trim() : value;
-const trimEach = ({ value }: { value: unknown }) =>
-  Array.isArray(value)
-    ? value.map((item) => (typeof item === 'string' ? item.trim() : item))
-    : value;
-
-/** Dùng với @ValidateIf để field không gửi (undefined) thì bỏ qua, nhưng null vẫn bị validator từ chối. */
-export const isDefined = (_object: unknown, value: unknown) =>
-  value !== undefined;
+import {
+  trimString,
+  trimEach,
+} from '../../../common/validation/validation.helpers';
 
 export const ExerciseName = () =>
   applyDecorators(

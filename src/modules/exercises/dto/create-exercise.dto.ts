@@ -8,10 +8,10 @@ import {
 import {
   AliasesRule,
   ExerciseName,
-  isDefined,
   SecondaryMusclesRule,
   SubstituteIdsRule,
 } from './exercise.rules';
+import { isDefined } from '../../../common/validation/validation.helpers';
 
 /** Các trường chung khi tạo bài tập (chưa có id). */
 export class ExerciseBodyDto {

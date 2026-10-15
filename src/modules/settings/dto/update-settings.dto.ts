@@ -18,6 +18,7 @@ import {
   ThemePreference,
   WeightUnit,
 } from '../../../common/enums/forge.enums';
+import { isDefined } from '../../../common/validation/validation.helpers';
 
 /**
  * Ngữ nghĩa PATCH:
@@ -25,7 +26,6 @@ import {
  * - cột NOT NULL: ValidateIf(không phải undefined) để gửi null bị validator từ chối
  * - cột cho phép NULL (weeklyGoal, targetWeight): IsOptional để gửi null = xóa giá trị
  */
-const isDefined = (_object: unknown, value: unknown) => value !== undefined;
 
 export class UpdateSettingsDto {
   @ApiPropertyOptional({ enum: WeightUnit })

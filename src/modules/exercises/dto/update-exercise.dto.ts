@@ -8,10 +8,10 @@ import {
 import {
   AliasesRule,
   ExerciseName,
-  isDefined,
   SecondaryMusclesRule,
   SubstituteIdsRule,
 } from './exercise.rules';
+import { isDefined } from '../../../common/validation/validation.helpers';
 
 /** PATCH: field không gửi = giữ nguyên; không field nào cho phép null. */
 export class UpdateExerciseDto {

@@ -27,6 +27,7 @@ import {
   ExerciseScope,
 } from './dto/list-exercises-query.dto';
 import { MAX_CUSTOM_EXERCISES } from './constants/exercises.constants';
+import { isUniqueViolation } from '../../common/database/unique-violation';
 
 /** userId của chủ sở hữu; null = bài tập hệ thống. */
 type Scope = string | null;
@@ -336,6 +337,49 @@ export class ExercisesService {
     });
   }
 
+  /**
+   * Xác nhận mọi id bài tập mà user được phép tham chiếu (bài hệ thống hoặc bài của chính họ),
+   * KỂ CẢ bài đã xóa mềm: một buổi tập ghi offline có thể tham chiếu bài vừa bị xóa trên thiết bị
+   * khác, và từ chối nó sẽ làm mất dữ liệu tập luyện. Trả về tên và loại của từng bài.
+   */
+  async findReferencable(
+    manager: EntityManager,
+    userId: string,
+    ids: string[],
+  ): Promise<
+    Map<
+      string,
+      { name: string; category: ExerciseCategory; muscleGroup: MuscleGroup }
+    >
+  > {
+    const unique = [...new Set(ids)];
+    if (unique.length === 0) return new Map();
+
+    const rows = await manager
+      .createQueryBuilder(Exercise, 'e')
+      .withDeleted()
+      .select(['e.id', 'e.name', 'e.category', 'e.muscleGroup'])
+      .where('e.id IN (:...unique)', { unique })
+      .andWhere('(e.userId IS NULL OR e.userId = :userId)', { userId })
+      .getMany();
+
+    if (rows.length !== unique.length) {
+      throw new BadRequestException(
+        'Có bài tập không tồn tại hoặc bạn không có quyền sử dụng',
+      );
+    }
+    return new Map(
+      rows.map((row) => [
+        row.id,
+        {
+          name: row.name,
+          category: row.category,
+          muscleGroup: row.muscleGroup,
+        },
+      ]),
+    );
+  }
+
   // ================= Hàm phụ =================
 
   /** Tìm bài tập mà `scope` được phép sửa/xóa, và phân biệt đúng loại lỗi. */
@@ -365,21 +409,11 @@ export class ExercisesService {
   private validateCombination(
     muscleGroup: MuscleGroup,
     secondaryMuscles: MuscleGroup[],
-    category: ExerciseCategory,
+    _category: ExerciseCategory,
   ): void {
     if (secondaryMuscles.includes(muscleGroup)) {
       throw new BadRequestException(
         'Nhóm cơ phụ không được trùng nhóm cơ chính',
-      );
-    }
-    // Giả định về dữ liệu của Forge: cardio được theo dõi theo thời lượng và dùng nhóm cơ "cardio".
-    // Nếu app thật không theo quy ước này, hãy xóa kiểm tra bên dưới.
-    if (
-      category === ExerciseCategory.Cardio &&
-      muscleGroup !== MuscleGroup.Cardio
-    ) {
-      throw new BadRequestException(
-        'Bài tập cardio phải có nhóm cơ chính là "cardio"',
       );
     }
   }
@@ -500,10 +534,7 @@ export class ExercisesService {
   }
 
   private rethrowConflict(error: unknown): never {
-    if (
-      error instanceof QueryFailedError &&
-      (error.driverError as { code?: string })?.code === '23505'
-    ) {
+    if (isUniqueViolation(error)) {
       throw new ConflictException('Bài tập đã tồn tại (trùng id hoặc tên)');
     }
     throw error;
