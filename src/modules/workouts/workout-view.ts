@@ -70,8 +70,8 @@ export interface WorkoutView {
 }
 
 export interface LastPerformanceView {
-  /** null nếu chưa từng tập bài này (hoặc chưa có set nào hoàn thành). */
+  /** null nếu chưa có buổi tập đã kết thúc nào có bài này. */
   workout: { id: string; date: string; startTime: Date } | null;
-  /** Các set đã hoàn thành, không phải khởi động, theo thứ tự tập. */
+  /** Các set không phải khởi động của buổi đó (kể cả chưa hoàn thành), theo thứ tự tập. */
   sets: WorkoutSetView[];
 }

@@ -238,9 +238,12 @@ export class WorkoutsService {
   }
 
   /**
-   * Dữ liệu để prefill weight/reps khi tập lại một bài (tương đương getLastPerformance của front-end):
-   * buổi tập gần nhất (theo startTime), khác buổi bị loại trừ, có ít nhất một set đã hoàn thành
-   * và không phải khởi động; trả về đúng những set đó. Không có thì trả về workout = null.
+   * Dữ liệu để prefill khi tập lại một bài, khớp getPreviousSessionSets của front-end (progression.ts):
+   * - chỉ xét buổi tập ĐÃ KẾT THÚC (có endTime), khác buổi bị loại trừ
+   * - lấy buổi gần nhất (theo startTime) có ít nhất một set không phải khởi động
+   *   (không yêu cầu set đã hoàn thành, giống front-end)
+   * - trả về mọi set không phải khởi động của bài đó theo thứ tự tập; client tự đọc cờ `completed`
+   * Không có thì trả về workout = null.
    */
   async lastPerformance(
     userId: string,
@@ -256,12 +259,13 @@ export class WorkoutsService {
       `SELECT we.id AS entry_id, w.id AS workout_id,
                 to_char(w.date, 'YYYY-MM-DD') AS date, w.start_time
            FROM workout_exercises we
-           JOIN workouts w ON w.id = we.workout_id AND w.deleted_at IS NULL
+           JOIN workouts w ON w.id = we.workout_id
+                          AND w.deleted_at IS NULL AND w.end_time IS NOT NULL
           WHERE we.user_id = $1 AND we.exercise_id = $2 AND we.deleted_at IS NULL
             AND ($3::uuid IS NULL OR w.id <> $3::uuid)
             AND EXISTS (
               SELECT 1 FROM workout_sets s
-               WHERE s.workout_exercise_id = we.id AND s.completed
+               WHERE s.workout_exercise_id = we.id
                  AND NOT s.is_warmup AND s.deleted_at IS NULL)
           ORDER BY w.start_time DESC, we.position ASC
           LIMIT 1`,
@@ -271,11 +275,7 @@ export class WorkoutsService {
 
     const row = rows[0];
     const sets = await this.repo.manager.find(WorkoutSet, {
-      where: {
-        workoutExerciseId: row.entry_id,
-        completed: true,
-        isWarmup: false,
-      },
+      where: { workoutExerciseId: row.entry_id, isWarmup: false },
       order: { performedAt: 'ASC', id: 'ASC' },
     });
     return {
