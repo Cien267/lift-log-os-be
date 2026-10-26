@@ -14,6 +14,7 @@ import { SettingsModule } from './modules/settings/settings.module';
 import { TemplatesModule } from './modules/templates/templates.module';
 import { UsersModule } from './modules/users/users.module';
 import { WorkoutsModule } from './modules/workouts/workouts.module';
+import { BodyModule } from './modules/body/body.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { WorkoutsModule } from './modules/workouts/workouts.module';
     ExercisesModule,
     TemplatesModule,
     WorkoutsModule,
+    BodyModule,
   ],
   providers: [
     // Thứ tự quan trọng: giới hạn tần suất → xác thực JWT → kiểm tra vai trò.
