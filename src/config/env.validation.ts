@@ -43,6 +43,7 @@ const envSchema = z
       .transform((value) => value === 'true'),
     SMTP_USER: z.string().optional(),
     SMTP_PASS: z.string().optional(),
+    SYNC_PULL_LAG_SECONDS: z.coerce.number().int().min(0).max(60).default(5),
   })
   .superRefine((env, ctx) => {
     if (env.MAIL_TRANSPORT === 'smtp' && !env.SMTP_HOST) {

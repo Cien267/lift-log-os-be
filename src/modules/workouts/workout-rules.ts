@@ -67,12 +67,12 @@ export function assertValidTimes(
       MAX_WORKOUT_DURATION_SEC * 1000
     ) {
       throw new BadRequestException(
-        'Một buổi tập không thể kéo dài quá 24 giờ',
+        'Một buổi tập không thể kéo dài quá 7 ngày',
       );
     }
   }
   if (durationSec !== null && durationSec > MAX_WORKOUT_DURATION_SEC) {
-    throw new BadRequestException('durationSec không được vượt quá 24 giờ');
+    throw new BadRequestException('durationSec không được vượt quá 7 ngày');
   }
 }
 
